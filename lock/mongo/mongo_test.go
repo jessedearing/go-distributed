@@ -12,6 +12,7 @@ import (
 )
 
 func TestBlockingLocks(t *testing.T) {
+	t.Parallel()
 	l, err := lock.New("mongo", "mongodb://127.0.0.1:27017/mydb")
 	assert.Nil(t, err)
 	defer l.Close()
@@ -37,49 +38,60 @@ func TestBlockingLocks(t *testing.T) {
 	}()
 
 	lock1Chan <- struct{}{}
-	time.Sleep(500 * time.Millisecond)
 	lock2Chan <- struct{}{}
-
-	assert.Len(t, lock1Aquired, 1)
-	assert.Len(t, lock2Aquired, 0)
+	select {
+	case <-time.After(2 * time.Second):
+		assert.Fail(t, "failed to aquire lock 1 after 2 seconds")
+	case <-lock1Aquired:
+	}
 
 	l.Unlock("test")
 
-	time.Sleep(250 * time.Millisecond)
-	assert.Len(t, lock2Aquired, 1)
+	select {
+	case <-time.After(2 * time.Second):
+		assert.Fail(t, "failed to aquire lock 2 after 2 seconds")
+	case <-lock2Aquired:
+	}
 
 	l2.Unlock("test")
 }
 
 func TestNonBlockingLocks(t *testing.T) {
-	l, err := lock.New("mongo", "mongodb://localhost/mydb")
+	t.Parallel()
+	l, err := lock.New("mongo", "mongodb://localhost/nbdb")
 	assert.Nil(t, err)
 	defer l.Close()
-	l2, err := lock.New("mongo", "mongodb://localhost/mydb")
+	l2, err := lock.New("mongo", "mongodb://localhost/nbdb")
 	assert.Nil(t, err)
 	defer l2.Close()
 
 	var lock1Chan = make(chan struct{})
-	var lock1Result = make(chan bool)
+	var lock1Aquired = make(chan struct{})
+	var lock1Result = make(chan bool, 1)
 	var lock2Chan = make(chan struct{})
-	var lock2Result = make(chan bool)
+	var lock2Result = make(chan bool, 1)
 
 	go func() {
 		<-lock1Chan
-		lock1Result <- l.NonBlockLock("test")
+		lock1Result <- l.NonBlockLock("non-block-test")
+		lock1Aquired <- struct{}{}
 	}()
 
 	go func() {
 		<-lock2Chan
-		lock2Result <- l2.NonBlockLock("test")
+		lock2Result <- l2.NonBlockLock("non-block-test")
 	}()
 
 	lock1Chan <- struct{}{}
-	time.Sleep(250 * time.Millisecond)
+	select {
+	case <-time.After(2 * time.Second):
+		assert.Fail(t, "Failed to aquire nonblocking lock after 2 seconds")
+	case <-lock1Aquired:
+	}
 	lock2Chan <- struct{}{}
 
 	assert.True(t, <-lock1Result)
 	assert.False(t, <-lock2Result)
-	l.Unlock("test")
-	l2.Unlock("test")
+	l.Unlock("non-block-test")
+	l2.Unlock("non-block-test")
 }

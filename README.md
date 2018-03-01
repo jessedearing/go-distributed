@@ -1,6 +1,6 @@
 # go-distributed
 
-![Build status](https://travis-ci.org/jessedearing/go-distributed.svg?branch=master)
+[![Build status](https://travis-ci.org/jessedearing/go-distributed.svg?branch=master)](https://travis-ci.org/jessedearing/go-distributed)
 
 ## Summary
 
