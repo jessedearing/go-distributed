@@ -1,5 +1,7 @@
 # go-distributed
 
+![Build status](https://travis-ci.org/jessedearing/go-distributed.svg?branch=master)
+
 ## Summary
 
 Provides distributed primitives such as locks using a variety of databases
