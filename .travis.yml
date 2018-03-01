@@ -6,4 +6,4 @@ go:
   - master
 
 services:
-  - mongo
+  - mongodb
