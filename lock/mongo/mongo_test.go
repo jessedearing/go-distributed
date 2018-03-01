@@ -12,10 +12,10 @@ import (
 )
 
 func TestBlockingLocks(t *testing.T) {
-	l, err := lock.New("mongo", "mongodb://localhost/mydb")
+	l, err := lock.New("mongo", "mongodb://127.0.0.1:27017/mydb")
 	assert.Nil(t, err)
 	defer l.Close()
-	l2, err := lock.New("mongo", "mongodb://localhost/mydb")
+	l2, err := lock.New("mongo", "mongodb://127.0.0.1:27017/mydb")
 	assert.Nil(t, err)
 	defer l2.Close()
 
