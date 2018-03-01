@@ -4,6 +4,10 @@ all: test
 mongotest: ## Test mongo integration
 	go test -tags mongo ./...
 
+.PHONY: mysql
+mysql: ## Test mysql integration
+	go test -tags mysql ./...
+
 .PHONY: test
 test: mongotest ## Run all tests
 
