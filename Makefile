@@ -1,4 +1,4 @@
-all: help
+all: test
 
 .PHONY: mongotest
 mongotest: ## Test mongo integration
