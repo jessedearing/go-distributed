@@ -37,7 +37,7 @@ func TestBlockingLocks(t *testing.T) {
 	}()
 
 	lock1Chan <- struct{}{}
-	time.Sleep(250 * time.Millisecond)
+	time.Sleep(500 * time.Millisecond)
 	lock2Chan <- struct{}{}
 
 	assert.Len(t, lock1Aquired, 1)
