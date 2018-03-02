@@ -38,6 +38,7 @@ func TestBlockingLocks(t *testing.T) {
 	}()
 
 	lock1Chan <- struct{}{}
+	time.Sleep(75 * time.Millisecond)
 	lock2Chan <- struct{}{}
 	select {
 	case <-time.After(2 * time.Second):
@@ -84,8 +85,8 @@ func TestNonBlockingLocks(t *testing.T) {
 
 	lock1Chan <- struct{}{}
 	select {
-	case <-time.After(2 * time.Second):
-		assert.Fail(t, "Failed to aquire nonblocking lock after 2 seconds")
+	case <-time.After(10 * time.Second):
+		assert.Fail(t, "Failed to aquire nonblocking lock after 10 seconds")
 	case <-lock1Aquired:
 	}
 	lock2Chan <- struct{}{}
